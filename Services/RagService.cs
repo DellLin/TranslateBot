@@ -409,4 +409,41 @@ public class RagService
             throw;
         }
     }
+
+    /// <summary>
+    /// 取得資料庫統計資訊
+    /// </summary>
+    public async Task<(int cityCount, int streetCount, int villageCount, int laneCount, int totalCount)> GetDatabaseStatsAsync()
+    {
+        try
+        {
+            var cityCount = await _dbContext.AddressReferences
+                .Where(x => x.Type == "County")
+                .CountAsync();
+
+            var streetCount = await _dbContext.AddressReferences
+                .Where(x => x.Type == "Street")
+                .CountAsync();
+
+            var villageCount = await _dbContext.AddressReferences
+                .Where(x => x.Type == "Village")
+                .CountAsync();
+
+            var laneCount = await _dbContext.AddressReferences
+                .Where(x => x.Type == "Lane")
+                .CountAsync();
+
+            var totalCount = await _dbContext.AddressReferences.CountAsync();
+
+            _logger.LogInformation("資料庫統計 - 縣市: {CityCount}, 街路: {StreetCount}, 村里: {VillageCount}, 巷弄: {LaneCount}, 總計: {TotalCount}",
+                cityCount, streetCount, villageCount, laneCount, totalCount);
+
+            return (cityCount, streetCount, villageCount, laneCount, totalCount);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "取得資料庫統計時發生錯誤");
+            throw;
+        }
+    }
 }

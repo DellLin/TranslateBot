@@ -108,58 +108,16 @@ public class AdminController : ControllerBase
     {
         try
         {
-            // 讀取CSV檔案來計算統計數據
-            var cityCount = 0;
-            var streetCount = 0;
-            var villageCount = 0;
-
-            try
-            {
-                var countyNamesPath = Path.Combine(Directory.GetCurrentDirectory(), "縣市名稱.csv");
-                if (System.IO.File.Exists(countyNamesPath))
-                {
-                    var lines = await System.IO.File.ReadAllLinesAsync(countyNamesPath, System.Text.Encoding.UTF8);
-                    cityCount = lines.Where(line => !string.IsNullOrWhiteSpace(line)).Count();
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning("讀取縣市名稱檔案失敗: {Error}", ex.Message);
-            }
-
-            try
-            {
-                var streetNamesPath = Path.Combine(Directory.GetCurrentDirectory(), "街路名稱.csv");
-                if (System.IO.File.Exists(streetNamesPath))
-                {
-                    var lines = await System.IO.File.ReadAllLinesAsync(streetNamesPath, System.Text.Encoding.UTF8);
-                    streetCount = lines.Where(line => !string.IsNullOrWhiteSpace(line)).Count();
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning("讀取街路名稱檔案失敗: {Error}", ex.Message);
-            }
-
-            try
-            {
-                var villageReferencePath = Path.Combine(Directory.GetCurrentDirectory(), "村里文字巷中英對照.TXT");
-                if (System.IO.File.Exists(villageReferencePath))
-                {
-                    var lines = await System.IO.File.ReadAllLinesAsync(villageReferencePath, System.Text.Encoding.UTF8);
-                    villageCount = lines.Where(line => !string.IsNullOrWhiteSpace(line)).Count();
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning("讀取村里文字巷對照檔案失敗: {Error}", ex.Message);
-            }
+            // 從資料庫讀取統計數據
+            var (cityCount, streetCount, villageCount, laneCount, totalCount) = await _ragService.GetDatabaseStatsAsync();
 
             return Ok(new
             {
                 cityCount = cityCount,
                 streetCount = streetCount,
                 villageCount = villageCount,
+                laneCount = laneCount,
+                totalCount = totalCount,
                 translationCount = 0, // 這裡可以從資料庫或日誌中獲取實際的翻譯次數
                 lastUpdated = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
             });
