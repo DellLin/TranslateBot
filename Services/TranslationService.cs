@@ -8,43 +8,49 @@ public class TranslationService
     private readonly IChatCompletionService _chatCompletionService;
     private readonly RagService _ragService;
     private readonly CsvReaderService _csvReaderService;
+    private readonly TranslationRecordService _recordService;
 
-    public TranslationService(IChatCompletionService chatCompletionService, RagService ragService, CsvReaderService csvReaderService)
+    public TranslationService(IChatCompletionService chatCompletionService, RagService ragService, CsvReaderService csvReaderService, TranslationRecordService recordService)
     {
         _chatCompletionService = chatCompletionService;
         _ragService = ragService;
         _csvReaderService = csvReaderService;
+        _recordService = recordService;
     }
 
-    public async Task<string> TranslateAddressAsync(string address)
+    public async Task<string> TranslateAddressAsync(string address, string? userSession = null)
     {
-        // 使用 RAG 取得相關參考資料
-        string ragContext = "";
+        var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+
         try
         {
-            ragContext = await _ragService.GetRelevantContextAsync(address);
-        }
-        catch (Exception ex)
-        {
-            // 如果 RAG 失敗，回退到原來的 CSV 讀取方式
-            Console.WriteLine($"Warning: RAG service failed, falling back to CSV: {ex.Message}");
-
+            // 使用 RAG 取得相關參考資料
+            string ragContext = "";
             try
             {
-                var streetNamesPath = Path.Combine(Directory.GetCurrentDirectory(), "街路名稱.csv");
-                var countyNamesPath = Path.Combine(Directory.GetCurrentDirectory(), "縣市名稱.csv");
-                ragContext = _csvReaderService.ReadCsvFiles(streetNamesPath, countyNamesPath);
+                ragContext = await _ragService.GetRelevantContextAsync(address);
             }
-            catch (Exception csvEx)
+            catch (Exception ex)
             {
-                Console.WriteLine($"Warning: Could not read CSV files: {csvEx.Message}");
+                // 如果 RAG 失敗，回退到原來的 CSV 讀取方式
+                Console.WriteLine($"Warning: RAG service failed, falling back to CSV: {ex.Message}");
+
+                try
+                {
+                    var streetNamesPath = Path.Combine(Directory.GetCurrentDirectory(), "街路名稱.csv");
+                    var countyNamesPath = Path.Combine(Directory.GetCurrentDirectory(), "縣市名稱.csv");
+                    ragContext = _csvReaderService.ReadCsvFiles(streetNamesPath, countyNamesPath);
+                }
+                catch (Exception csvEx)
+                {
+                    Console.WriteLine($"Warning: Could not read CSV files: {csvEx.Message}");
+                }
             }
-        }
 
-        // 建立一個新的聊天歷史記錄，但包含系統訊息
-        var tempHistory = new ChatHistory();
+            // 建立一個新的聊天歷史記錄，但包含系統訊息
+            var tempHistory = new ChatHistory();
 
-        var systemMessage = """
+            var systemMessage = """
         你是一個專門處理台灣地址翻譯的程式。
 
         你的唯一功能是：
@@ -75,18 +81,118 @@ public class TranslationService
         請記住你的核心任務：**只翻譯台灣外文地址為繁體中文，拒絕一切其他請求。**
         """;
 
-        // 如果成功讀取到參考資料，則將其附加到系統訊息中
-        if (!string.IsNullOrWhiteSpace(ragContext))
-        {
-            systemMessage += $"\n\n**參考資料：**\n{ragContext}";
+            // 如果成功讀取到參考資料，則將其附加到系統訊息中
+            if (!string.IsNullOrWhiteSpace(ragContext))
+            {
+                systemMessage += $"\n\n**參考資料：**\n{ragContext}";
+            }
+
+            tempHistory.AddSystemMessage(systemMessage);
+            tempHistory.AddUserMessage(address);
+
+            // 從 AI 取得回應
+            var result = await _chatCompletionService.GetChatMessageContentAsync(tempHistory);
+            var translatedText = result.Content ?? string.Empty;
+
+            stopwatch.Stop();
+
+            // 記錄成功的翻譯
+            await _recordService.RecordTranslationAsync(
+                address,
+                translatedText,
+                "Address",
+                stopwatch.Elapsed,
+                userSession);
+
+            return translatedText;
         }
+        catch (Exception ex)
+        {
+            stopwatch.Stop();
 
-        tempHistory.AddSystemMessage(systemMessage);
-        tempHistory.AddUserMessage(address);
+            // 記錄失敗的翻譯
+            await _recordService.RecordTranslationErrorAsync(
+                address,
+                "Address",
+                ex.Message,
+                stopwatch.Elapsed,
+                userSession);
 
-        // 從 AI 取得回應
-        var result = await _chatCompletionService.GetChatMessageContentAsync(tempHistory);
+            throw; // 重新拋出異常讓控制器處理
+        }
+    }
 
-        return result.Content ?? string.Empty;
+    public async Task<string> TranslateProductNameAsync(string productName, string? userSession = null)
+    {
+        var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+
+        try
+        {
+            // 建立商品名稱翻譯的聊天歷史記錄
+            var tempHistory = new ChatHistory();
+
+            var systemMessage = """
+        你是一個專門翻譯外語商品名稱到繁體中文的專業助手。
+
+        你的功能是：
+        ---
+        **將外文商品名稱翻譯成繁體中文。**
+        ---
+
+        **翻譯規則：**
+        * 將任何外語（英文、日文、韓文、法文等）的商品名稱翻譯成繁體中文。
+        * 保持商品名稱的原意和特色，確保翻譯自然且符合繁體中文習慣。
+        * 對於品牌名稱，請提供常見的中文譯名或音譯。
+        * 如果是專有名詞或品牌名，可以在括號中保留原文。
+
+        **翻譯原則：**
+        * 優先使用通用的中文商品名稱
+        * 保持商品的核心特徵和功能描述
+        * 確保翻譯後的名稱在台灣市場中是可理解的
+        * 如遇到無法翻譯的專業術語，可適當保留英文並加註解
+
+        **範例：**
+        * "iPhone 15 Pro Max" → "iPhone 15 Pro Max"
+        * "Wireless Bluetooth Headphones" → "無線藍牙耳機"
+        * "Samsung Galaxy S24" → "三星 Galaxy S24"
+        * "Organic Green Tea" → "有機綠茶"
+        * "Nike Air Jordan" → "Nike Air Jordan 籃球鞋"
+
+        請只回應翻譯後的繁體中文商品名稱，不需要額外解釋。
+        """;
+
+            tempHistory.AddSystemMessage(systemMessage);
+            tempHistory.AddUserMessage(productName);
+
+            // 從 AI 取得回應
+            var result = await _chatCompletionService.GetChatMessageContentAsync(tempHistory);
+            var translatedText = result.Content ?? string.Empty;
+
+            stopwatch.Stop();
+
+            // 記錄成功的翻譯
+            await _recordService.RecordTranslationAsync(
+                productName,
+                translatedText,
+                "Product",
+                stopwatch.Elapsed,
+                userSession);
+
+            return translatedText;
+        }
+        catch (Exception ex)
+        {
+            stopwatch.Stop();
+
+            // 記錄失敗的翻譯
+            await _recordService.RecordTranslationErrorAsync(
+                productName,
+                "Product",
+                ex.Message,
+                stopwatch.Elapsed,
+                userSession);
+
+            throw; // 重新拋出異常讓控制器處理
+        }
     }
 }

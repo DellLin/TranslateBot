@@ -26,3 +26,29 @@ WITH (lists = 100);
 CREATE INDEX IF NOT EXISTS ix_address_references_content ON address_references (content);
 
 CREATE INDEX IF NOT EXISTS ix_address_references_type ON address_references(type);
+
+-- 創建 translation_records 表
+CREATE TABLE IF NOT EXISTS translation_records (
+    id SERIAL PRIMARY KEY,
+    original_text VARCHAR(500) NOT NULL,
+    translated_text VARCHAR(500) NOT NULL,
+    translation_type VARCHAR(50) NOT NULL,
+    user_session VARCHAR(100),
+    created_at TIMESTAMP
+    WITH
+        TIME ZONE DEFAULT NOW (),
+        processing_time INTERVAL NOT NULL,
+        is_successful BOOLEAN DEFAULT TRUE,
+        error_message VARCHAR(1000)
+);
+
+-- 為常用查詢建立索引
+CREATE INDEX IF NOT EXISTS ix_translation_records_created_at ON translation_records (created_at);
+
+CREATE INDEX IF NOT EXISTS ix_translation_records_type ON translation_records (translation_type);
+
+CREATE INDEX IF NOT EXISTS ix_translation_records_session ON translation_records (user_session);
+
+CREATE INDEX IF NOT EXISTS ix_translation_records_original_text ON translation_records (original_text);
+
+CREATE INDEX IF NOT EXISTS ix_translation_records_success ON translation_records (is_successful);

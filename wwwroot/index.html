@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>地址翻譯測試</title>
+    <title>智慧翻譯系統</title>
     <style>
         * {
             box-sizing: border-box;
@@ -32,6 +32,28 @@
             font-size: 2.5rem;
             margin-bottom: 10px;
             font-weight: 700;
+        }
+
+        .nav-links {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .nav-links a {
+            display: inline-block;
+            padding: 8px 16px;
+            margin: 0 10px;
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            background: rgba(102, 126, 234, 0.2);
+            transform: translateY(-1px);
         }
         
         .subtitle {
@@ -148,6 +170,46 @@
             margin-right: 8px;
         }
         
+        .tab-container {
+            margin-bottom: 30px;
+        }
+        
+        .tab-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e1e5e9;
+        }
+        
+        .tab-button {
+            background: transparent;
+            border: none;
+            padding: 15px 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            color: #666;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .tab-button:hover {
+            color: #667eea;
+        }
+        
+        .tab-button.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
@@ -179,48 +241,114 @@
 </head>
 <body>
     <div class="container">
-        <h1>🌐 地址翻譯工具</h1>
+        <h1>🌐 智慧翻譯系統</h1>
+        
+        <div class="nav-links">
+            <a href="index.html">🏠 首頁</a>
+            <a href="records.html">📝 翻譯記錄</a>
+            <a href="admin.html">⚙️ 管理員</a>
+        </div>
+        
         <p class="subtitle">
-            智慧地址翻譯服務，整合完整的台灣地名資料庫<br>
-            支援縣市、街路、村里等各級地址的精準翻譯
+            智慧翻譯服務，支援地址和商品名稱的中英對照<br>
+            整合完整的台灣地名資料庫與商品翻譯功能
         </p>
         
-        <div class="feature-list">
-            <h3>✨ 功能特色</h3>
-            <ul>
-                <li>🎯 整合 <strong>中華郵政全球資訊網-縣市鄉鎮中英對照</strong> 資料，確保縣市翻譯準確性</li>
-                <li>🛣️ 涵蓋 <strong>中華郵政全球資訊網-街路名稱中英對照</strong> 完整路名對照</li>
-                <li>🏘️ 包含 <strong>中華郵政全球資訊網-村里文字巷中英對照</strong> 詳細地址元件</li>
-                <li>🤖 運用 AI 語意理解，提供智慧化翻譯建議</li>
-            </ul>
+        <div class="tab-container">
+            <div class="tab-buttons">
+                <button class="tab-button active" onclick="switchTab('address')">🏠 地址翻譯</button>
+                <button class="tab-button" onclick="switchTab('product')">📦 商品名稱翻譯</button>
+            </div>
         </div>
-        
-        <div class="input-group">
-            <label for="address">請輸入要翻譯的地址：</label>
-            <textarea 
-                id="address" 
-                rows="4" 
-                placeholder="例如：No. 1, Shifu Rd., Xinyi Dist., Taipei City 110204&#10;No. 7, Sec. 2, Xianmin Blvd., Banqiao Dist., New Taipei City 220227&#10;No. 25, Chenggong 2nd Rd., Qianzhen Dist., Kaohsiung City 806614"
-            ></textarea>
+
+        <!-- 地址翻譯標籤頁 -->
+        <div id="address-tab" class="tab-content active">
+            <div class="feature-list">
+                <h3>✨ 地址翻譯功能特色</h3>
+                <ul>
+                    <li>🎯 整合 <strong>中華郵政全球資訊網-縣市鄉鎮中英對照</strong> 資料，確保縣市翻譯準確性</li>
+                    <li>🛣️ 涵蓋 <strong>中華郵政全球資訊網-街路名稱中英對照</strong> 完整路名對照</li>
+                    <li>🏘️ 包含 <strong>中華郵政全球資訊網-村里文字巷中英對照</strong> 詳細地址元件</li>
+                    <li>🤖 運用 AI 語意理解，提供智慧化翻譯建議</li>
+                </ul>
+            </div>
+            
+            <div class="input-group">
+                <label for="address">請輸入要翻譯的地址：</label>
+                <textarea 
+                    id="address" 
+                    rows="4" 
+                    placeholder="例如：No. 1, Shifu Rd., Xinyi Dist., Taipei City 110204&#10;No. 7, Sec. 2, Xianmin Blvd., Banqiao Dist., New Taipei City 220227&#10;No. 25, Chenggong 2nd Rd., Qianzhen Dist., Kaohsiung City 806614"
+                ></textarea>
+            </div>
+            
+            <button onclick="translateAddress()">
+                <span class="button-text">開始地址翻譯</span>
+            </button>
         </div>
-        
-        <button onclick="translateAddress()">
-            <span class="button-text">開始翻譯</span>
-        </button>
-        
+
+        <!-- 商品名稱翻譯標籤頁 -->
+        <div id="product-tab" class="tab-content">
+            <div class="feature-list">
+                <h3>✨ 商品名稱翻譯功能特色</h3>
+                <ul>
+                    <li>🌍 支援多國語言商品名稱翻譯為繁體中文</li>
+                    <li>🏷️ 保持品牌名稱的正確性和一致性</li>
+                    <li>📱 適用於各種產品類型：電子產品、服飾、食品等</li>
+                    <li>🎯 符合台灣市場的中文表達習慣</li>
+                </ul>
+            </div>
+            
+            <div class="input-group">
+                <label for="productName">請輸入要翻譯的商品名稱：</label>
+                <textarea 
+                    id="productName" 
+                    rows="3" 
+                    placeholder="例如：iPhone 15 Pro Max&#10;Wireless Bluetooth Headphones&#10;Samsung Galaxy S24 Ultra"
+                ></textarea>
+            </div>
+            
+            <button onclick="translateProduct()">
+                <span class="button-text">開始商品翻譯</span>
+            </button>
+        </div>
+
         <div id="result" class="result"></div>
         
         <div class="footer">
-            <p>© 2025 智慧地址翻譯系統 | 基於 Microsoft Semantic Kernel 和 Google Gemini AI</p>
+            <p>© 2025 智慧翻譯系統 | 基於 Microsoft Semantic Kernel 和 Google Gemini AI</p>
             <p><a href="admin.html" style="color: #667eea; text-decoration: none;">🛠️ 管理後台</a></p>
         </div>
     </div>
 
     <script>
+        // 標籤頁切換功能
+        function switchTab(tabName) {
+            // 隱藏所有標籤頁內容
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // 移除所有按鈕的 active 狀態
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // 顯示選中的標籤頁
+            document.getElementById(tabName + '-tab').classList.add('active');
+            
+            // 添加按鈕的 active 狀態
+            event.target.classList.add('active');
+            
+            // 清除結果區域
+            document.getElementById('result').style.display = 'none';
+        }
+
+        // 地址翻譯功能
         async function translateAddress() {
             const addressInput = document.getElementById('address');
             const resultDiv = document.getElementById('result');
-            const button = document.querySelector('button');
+            const button = event.target.closest('button');
             const buttonText = button.querySelector('.button-text');
             
             const address = addressInput.value.trim();
@@ -250,27 +378,81 @@
                 
                 if (response.ok) {
                     showResult(`
-                        <h4>✅ 翻譯完成</h4>
+                        <h4>✅ 地址翻譯完成</h4>
                         <div class="address-display">
                             <strong>📍 原始地址：</strong><br>
                             ${escapeHtml(data.originalAddress)}
                         </div>
                         <div class="address-display">
-                            <strong>🌍 英文翻譯：</strong><br>
+                            <strong>� 繁體中文地址：</strong><br>
                             ${escapeHtml(data.translatedAddress)}
                         </div>
                     `, 'success');
                 } else {
-                    showResult(`❌ 翻譯失敗: ${data.error || '未知錯誤'}`, 'error');
+                    showResult(`❌ 地址翻譯失敗: ${data.error || '未知錯誤'}`, 'error');
                 }
             } catch (error) {
                 showResult(`🔌 連接失敗: ${error.message}`, 'error');
             } finally {
                 button.disabled = false;
-                buttonText.textContent = '開始翻譯';
+                buttonText.textContent = '開始地址翻譯';
             }
         }
-        
+
+        // 商品名稱翻譯功能
+        async function translateProduct() {
+            const productInput = document.getElementById('productName');
+            const resultDiv = document.getElementById('result');
+            const button = event.target.closest('button');
+            const buttonText = button.querySelector('.button-text');
+            
+            const productName = productInput.value.trim();
+            
+            if (!productName) {
+                showResult('❌ 請輸入要翻譯的商品名稱', 'error');
+                return;
+            }
+            
+            // 顯示載入中
+            button.disabled = true;
+            buttonText.innerHTML = '<span class="loading-spinner"></span>翻譯中...';
+            resultDiv.style.display = 'none';
+            
+            try {
+                const response = await fetch('/api/translate/product', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        productName: productName
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showResult(`
+                        <h4>✅ 商品名稱翻譯完成</h4>
+                        <div class="address-display">
+                            <strong>📦 原始商品名稱：</strong><br>
+                            ${escapeHtml(data.originalProductName)}
+                        </div>
+                        <div class="address-display">
+                            <strong>🏷️ 繁體中文名稱：</strong><br>
+                            ${escapeHtml(data.translatedProductName)}
+                        </div>
+                    `, 'success');
+                } else {
+                    showResult(`❌ 商品翻譯失敗: ${data.error || '未知錯誤'}`, 'error');
+                }
+            } catch (error) {
+                showResult(`🔌 連接失敗: ${error.message}`, 'error');
+            } finally {
+                button.disabled = false;
+                buttonText.textContent = '開始商品翻譯';
+            }
+        }
         function showResult(message, type) {
             const resultDiv = document.getElementById('result');
             resultDiv.innerHTML = message;
@@ -284,11 +466,19 @@
             return div.innerHTML;
         }
         
-        // 按 Enter 鍵也能翻譯
+        // 按 Enter 鍵也能翻譯（地址輸入框）
         document.getElementById('address').addEventListener('keypress', function(e) {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
                 translateAddress();
+            }
+        });
+        
+        // 按 Enter 鍵也能翻譯（商品名稱輸入框）
+        document.getElementById('productName').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                translateProduct();
             }
         });
     </script>

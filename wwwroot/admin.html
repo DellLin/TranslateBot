@@ -38,6 +38,28 @@
             font-size: 2.5rem;
             font-weight: 700;
         }
+
+        .nav-links {
+            text-align: center;
+            margin: 15px 0 0 0;
+        }
+
+        .nav-links a {
+            display: inline-block;
+            padding: 8px 16px;
+            margin: 0 10px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-1px);
+        }
         
         .header p {
             margin: 10px 0 0 0;
@@ -205,13 +227,17 @@
     <div class="container">
         <div class="header">
             <h1>🛠️ 管理後台</h1>
+            <div class="nav-links">
+                <a href="index.html">🏠 首頁</a>
+                <a href="records.html">📝 翻譯記錄</a>
+                <a href="admin.html">⚙️ 管理員</a>
+            </div>
             <p>地址翻譯系統數據管理中心</p>
         </div>
         
         <div class="content">
             <div class="nav-tabs">
                 <button class="nav-tab active" onclick="showTab('overview')">系統概覽</button>
-                <button class="nav-tab" onclick="showTab('data')">資料管理</button>
                 <button class="nav-tab" onclick="showTab('settings')">系統設定</button>
             </div>
             
@@ -245,21 +271,6 @@
                 </div>
             </div>
             
-            <div id="data" class="tab-content">
-                <h2>📚 資料庫管理</h2>
-                <div style="margin-bottom: 20px;">
-                    <button class="btn" onclick="refreshData()">🔄 重新載入資料</button>
-                    <button class="btn btn-secondary" onclick="exportData()">💾 匯出資料</button>
-                </div>
-                
-                <div id="dataContent">
-                    <div class="loading">
-                        <div class="loading-spinner"></div>
-                        <p>正在載入資料...</p>
-                    </div>
-                </div>
-            </div>
-            
             <div id="settings" class="tab-content">
                 <h2>⚙️ 系統設定</h2>
                 <p>系統配置和管理功能即將推出...</p>
@@ -271,8 +282,6 @@
                     <p><strong>向量維度：</strong> 768</p>
                 </div>
             </div>
-            
-            <a href="index.html" class="back-link">← 返回翻譯首頁</a>
         </div>
     </div>
 
@@ -299,8 +308,6 @@
             // 載入對應的數據
             if (tabName === 'overview') {
                 loadOverview();
-            } else if (tabName === 'data') {
-                loadData();
             }
         }
         
@@ -339,67 +346,10 @@
             }
         }
         
-        async function loadData() {
-            const dataContent = document.getElementById('dataContent');
-            dataContent.innerHTML = `
-                <div class="loading">
-                    <div class="loading-spinner"></div>
-                    <p>正在載入資料...</p>
-                </div>
-            `;
-            
-            try {
-                const response = await fetch('/api/admin/data');
-                if (response.ok) {
-                    const data = await response.json();
-                    displayData(data);
-                } else {
-                    throw new Error('無法載入資料');
-                }
-            } catch (error) {
-                dataContent.innerHTML = `
-                    <div class="error">
-                        ❌ 載入資料失敗: ${error.message}
-                        <p>這個功能需要後端 AdminController 支援</p>
-                    </div>
-                `;
-            }
-        }
-        
-        function displayData(data) {
-            const dataContent = document.getElementById('dataContent');
-            dataContent.innerHTML = `
-                <h3>🎯 最近的翻譯記錄</h3>
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>時間</th>
-                            <th>原始地址</th>
-                            <th>翻譯結果</th>
-                            <th>操作</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td colspan="4" style="text-align: center; color: #666;">
-                                暫無翻譯記錄
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            `;
-        }
-        
         function refreshData() {
             if (currentTab === 'overview') {
                 loadOverview();
-            } else if (currentTab === 'data') {
-                loadData();
             }
-        }
-        
-        function exportData() {
-            alert('匯出功能開發中...');
         }
         
         // 初始載入

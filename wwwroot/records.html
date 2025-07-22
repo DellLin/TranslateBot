@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>翻譯記錄管理</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            font-weight: 700;
+        }
+
+        .nav-links {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .nav-links a {
+            display: inline-block;
+            padding: 8px 16px;
+            margin: 0 10px;
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            background: rgba(102, 126, 234, 0.2);
+            transform: translateY(-1px);
+        }
+
+        .nav-tabs {
+            display: flex;
+            border-bottom: 2px solid #f0f0f0;
+            margin-bottom: 30px;
+        }
+
+        .nav-tab {
+            padding: 12px 24px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            color: #666;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .nav-tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .search-section {
+            margin-bottom: 30px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: end;
+        }
+
+        .input-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .input-group input,
+        .input-group select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .input-group input:focus,
+        .input-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            height: fit-content;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .records-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .records-table th,
+        .records-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .records-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .records-table tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .type-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .type-address {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .type-product {
+            background: #f3e5f5;
+            color: #7b1fa2;
+        }
+
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-success {
+            background: #e8f5e8;
+            color: #2e7d2e;
+        }
+
+        .status-error {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .page-btn {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            background: white;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .page-btn:hover {
+            background: #f5f5f5;
+        }
+
+        .page-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .page-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .error {
+            color: #c62828;
+            background: #ffebee;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px;
+            color: #666;
+        }
+
+        .empty-state .icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            .search-section {
+                flex-direction: column;
+            }
+
+            .input-group {
+                min-width: 100%;
+            }
+
+            .records-table {
+                font-size: 14px;
+            }
+
+            .records-table th,
+            .records-table td {
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>翻譯記錄管理</h1>
+        
+        <div class="nav-links">
+            <a href="index.html">🏠 首頁</a>
+            <a href="records.html">📝 翻譯記錄</a>
+            <a href="admin.html">⚙️ 管理員</a>
+        </div>
+        
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="switchTab('statistics')">統計資訊</button>
+            <button class="nav-tab" onclick="switchTab('history')">翻譯記錄</button>
+            <button class="nav-tab" onclick="switchTab('search')">搜尋記錄</button>
+        </div>
+
+        <!-- 統計資訊頁籤 -->
+        <div id="statistics" class="tab-content active">
+            <div class="stats-grid" id="statsGrid">
+                <!-- 統計卡片將動態載入 -->
+            </div>
+        </div>
+
+        <!-- 翻譯記錄頁籤 -->
+        <div id="history" class="tab-content">
+            <div class="search-section">
+                <div class="input-group">
+                    <label for="typeFilter">翻譯類型</label>
+                    <select id="typeFilter">
+                        <option value="">全部</option>
+                        <option value="Address">地址翻譯</option>
+                        <option value="Product">商品翻譯</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="sessionFilter">用戶會話</label>
+                    <input type="text" id="sessionFilter" placeholder="輸入會話 ID">
+                </div>
+                <button class="btn" onclick="loadHistory()">篩選</button>
+            </div>
+
+            <div id="historyContent">
+                <!-- 記錄表格將動態載入 -->
+            </div>
+
+            <div class="pagination" id="historyPagination">
+                <!-- 分頁將動態載入 -->
+            </div>
+        </div>
+
+        <!-- 搜尋記錄頁籤 -->
+        <div id="search" class="tab-content">
+            <div class="search-section">
+                <div class="input-group">
+                    <label for="searchText">搜尋文字</label>
+                    <input type="text" id="searchText" placeholder="在原文或譯文中搜尋...">
+                </div>
+                <button class="btn" onclick="searchRecords()">搜尋</button>
+            </div>
+
+            <div id="searchContent">
+                <!-- 搜尋結果將動態載入 -->
+            </div>
+
+            <div class="pagination" id="searchPagination">
+                <!-- 分頁將動態載入 -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentHistoryPage = 1;
+        let currentSearchPage = 1;
+        const pageSize = 20;
+
+        // 頁籤切換
+        function switchTab(tabName) {
+            // 隱藏所有頁籤內容
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // 移除所有導航按鈕的 active 狀態
+            document.querySelectorAll('.nav-tab').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // 顯示選中的頁籤內容
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+            
+            // 載入對應內容
+            switch(tabName) {
+                case 'statistics':
+                    loadStatistics();
+                    break;
+                case 'history':
+                    loadHistory();
+                    break;
+                case 'search':
+                    // 搜尋頁籤不自動載入
+                    break;
+            }
+        }
+
+        // 載入統計資訊
+        async function loadStatistics() {
+            const statsGrid = document.getElementById('statsGrid');
+            statsGrid.innerHTML = '<div class="loading">載入統計資訊中...</div>';
+            
+            try {
+                const response = await fetch('/api/translate/statistics');
+                if (!response.ok) throw new Error('載入統計失敗');
+                
+                const stats = await response.json();
+                
+                statsGrid.innerHTML = `
+                    <div class="stat-card">
+                        <div class="stat-number">${stats.totalRecords}</div>
+                        <div class="stat-label">總翻譯次數</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${stats.successfulTranslations}</div>
+                        <div class="stat-label">成功翻譯</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${stats.failedTranslations}</div>
+                        <div class="stat-label">失敗翻譯</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${stats.successRate.toFixed(1)}%</div>
+                        <div class="stat-label">成功率</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${stats.addressTranslations}</div>
+                        <div class="stat-label">地址翻譯</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${stats.productTranslations}</div>
+                        <div class="stat-label">商品翻譯</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${Math.round(stats.averageProcessingTimeMs)}</div>
+                        <div class="stat-label">平均處理時間 (毫秒)</div>
+                    </div>
+                `;
+            } catch (error) {
+                statsGrid.innerHTML = `<div class="error">載入統計資訊失敗: ${error.message}</div>`;
+            }
+        }
+
+        // 載入翻譯記錄
+        async function loadHistory(page = 1) {
+            const historyContent = document.getElementById('historyContent');
+            const historyPagination = document.getElementById('historyPagination');
+            
+            historyContent.innerHTML = '<div class="loading">載入記錄中...</div>';
+            historyPagination.innerHTML = '';
+            
+            try {
+                const typeFilter = document.getElementById('typeFilter').value;
+                const sessionFilter = document.getElementById('sessionFilter').value;
+                
+                let url = `/api/translate/history?page=${page}&pageSize=${pageSize}`;
+                if (typeFilter) url += `&type=${typeFilter}`;
+                if (sessionFilter) url += `&userSession=${sessionFilter}`;
+                
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('載入記錄失敗');
+                
+                const result = await response.json();
+                
+                if (result.data.length === 0) {
+                    historyContent.innerHTML = `
+                        <div class="empty-state">
+                            <div class="icon">📝</div>
+                            <div>沒有找到翻譯記錄</div>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // 生成表格
+                let tableHTML = `
+                    <table class="records-table">
+                        <thead>
+                            <tr>
+                                <th>時間</th>
+                                <th>類型</th>
+                                <th>原文</th>
+                                <th>譯文</th>
+                                <th>處理時間</th>
+                                <th>狀態</th>
+                                <th>用戶會話</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+                
+                result.data.forEach(record => {
+                    const date = new Date(record.createdAt).toLocaleString('zh-TW');
+                    const typeClass = record.translationType === 'Address' ? 'type-address' : 'type-product';
+                    const statusClass = record.isSuccessful ? 'status-success' : 'status-error';
+                    const processingTime = record.processingTime ? 
+                        `${Math.round(parseFloat(record.processingTime.split(':')[2]) * 1000)}ms` : 'N/A';
+                    
+                    tableHTML += `
+                        <tr>
+                            <td>${date}</td>
+                            <td><span class="type-badge ${typeClass}">${record.translationType === 'Address' ? '地址' : '商品'}</span></td>
+                            <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis;">${record.originalText}</td>
+                            <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis;">
+                                ${record.isSuccessful ? record.translatedText : (record.errorMessage || '翻譯失敗')}
+                            </td>
+                            <td>${processingTime}</td>
+                            <td><span class="status-badge ${statusClass}">${record.isSuccessful ? '成功' : '失敗'}</span></td>
+                            <td style="max-width: 100px; overflow: hidden; text-overflow: ellipsis;">${record.userSession || 'N/A'}</td>
+                        </tr>
+                    `;
+                });
+                
+                tableHTML += '</tbody></table>';
+                historyContent.innerHTML = tableHTML;
+                
+                // 生成分頁
+                currentHistoryPage = page;
+                generatePagination(result.pagination, 'historyPagination', (p) => loadHistory(p));
+                
+            } catch (error) {
+                historyContent.innerHTML = `<div class="error">載入記錄失敗: ${error.message}</div>`;
+            }
+        }
+
+        // 搜尋記錄
+        async function searchRecords(page = 1) {
+            const searchText = document.getElementById('searchText').value.trim();
+            if (!searchText) {
+                alert('請輸入搜尋文字');
+                return;
+            }
+            
+            const searchContent = document.getElementById('searchContent');
+            const searchPagination = document.getElementById('searchPagination');
+            
+            searchContent.innerHTML = '<div class="loading">搜尋中...</div>';
+            searchPagination.innerHTML = '';
+            
+            try {
+                const url = `/api/translate/history/search?searchText=${encodeURIComponent(searchText)}&page=${page}&pageSize=${pageSize}`;
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('搜尋失敗');
+                
+                const result = await response.json();
+                
+                if (result.data.length === 0) {
+                    searchContent.innerHTML = `
+                        <div class="empty-state">
+                            <div class="icon">🔍</div>
+                            <div>沒有找到相關記錄</div>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // 生成搜尋結果表格
+                let tableHTML = `
+                    <table class="records-table">
+                        <thead>
+                            <tr>
+                                <th>時間</th>
+                                <th>類型</th>
+                                <th>原文</th>
+                                <th>譯文</th>
+                                <th>處理時間</th>
+                                <th>狀態</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+                
+                result.data.forEach(record => {
+                    const date = new Date(record.createdAt).toLocaleString('zh-TW');
+                    const typeClass = record.translationType === 'Address' ? 'type-address' : 'type-product';
+                    const statusClass = record.isSuccessful ? 'status-success' : 'status-error';
+                    const processingTime = record.processingTime ? 
+                        `${Math.round(parseFloat(record.processingTime.split(':')[2]) * 1000)}ms` : 'N/A';
+                    
+                    tableHTML += `
+                        <tr>
+                            <td>${date}</td>
+                            <td><span class="type-badge ${typeClass}">${record.translationType === 'Address' ? '地址' : '商品'}</span></td>
+                            <td style="max-width: 250px; overflow: hidden; text-overflow: ellipsis;">${record.originalText}</td>
+                            <td style="max-width: 250px; overflow: hidden; text-overflow: ellipsis;">
+                                ${record.isSuccessful ? record.translatedText : (record.errorMessage || '翻譯失敗')}
+                            </td>
+                            <td>${processingTime}</td>
+                            <td><span class="status-badge ${statusClass}">${record.isSuccessful ? '成功' : '失敗'}</span></td>
+                        </tr>
+                    `;
+                });
+                
+                tableHTML += '</tbody></table>';
+                searchContent.innerHTML = tableHTML;
+                
+                // 生成分頁 (搜尋結果可能沒有完整的分頁資訊)
+                currentSearchPage = page;
+                
+            } catch (error) {
+                searchContent.innerHTML = `<div class="error">搜尋失敗: ${error.message}</div>`;
+            }
+        }
+
+        // 生成分頁控件
+        function generatePagination(pagination, containerId, clickHandler) {
+            const container = document.getElementById(containerId);
+            if (!pagination || pagination.totalPages <= 1) {
+                container.innerHTML = '';
+                return;
+            }
+            
+            let paginationHTML = '';
+            
+            // 上一頁按鈕
+            if (pagination.currentPage > 1) {
+                paginationHTML += `<button class="page-btn" onclick="${clickHandler.name}(${pagination.currentPage - 1})">上一頁</button>`;
+            }
+            
+            // 頁碼按鈕
+            const startPage = Math.max(1, pagination.currentPage - 2);
+            const endPage = Math.min(pagination.totalPages, pagination.currentPage + 2);
+            
+            if (startPage > 1) {
+                paginationHTML += `<button class="page-btn" onclick="${clickHandler.name}(1)">1</button>`;
+                if (startPage > 2) {
+                    paginationHTML += `<span>...</span>`;
+                }
+            }
+            
+            for (let i = startPage; i <= endPage; i++) {
+                const activeClass = i === pagination.currentPage ? 'active' : '';
+                paginationHTML += `<button class="page-btn ${activeClass}" onclick="${clickHandler.name}(${i})">${i}</button>`;
+            }
+            
+            if (endPage < pagination.totalPages) {
+                if (endPage < pagination.totalPages - 1) {
+                    paginationHTML += `<span>...</span>`;
+                }
+                paginationHTML += `<button class="page-btn" onclick="${clickHandler.name}(${pagination.totalPages})">${pagination.totalPages}</button>`;
+            }
+            
+            // 下一頁按鈕
+            if (pagination.currentPage < pagination.totalPages) {
+                paginationHTML += `<button class="page-btn" onclick="${clickHandler.name}(${pagination.currentPage + 1})">下一頁</button>`;
+            }
+            
+            container.innerHTML = paginationHTML;
+        }
+
+        // 頁面載入時初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            loadStatistics();
+        });
+
+        // Enter 鍵支援
+        document.getElementById('searchText').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchRecords();
+            }
+        });
+    </script>
+</body>
+</html>

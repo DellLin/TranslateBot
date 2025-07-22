@@ -45,6 +45,7 @@ builder.Services.AddScoped<EmbeddingService>(provider =>
     new EmbeddingService(provider.GetRequiredService<Kernel>(), provider.GetRequiredService<ILogger<EmbeddingService>>()));
 builder.Services.AddScoped<RagService>();
 builder.Services.AddSingleton<CsvReaderService>();
+builder.Services.AddScoped<TranslationRecordService>();
 builder.Services.AddScoped<TranslationService>();
 
 // 加入控制器支援
