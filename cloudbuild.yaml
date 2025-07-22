@@ -58,7 +58,7 @@ steps:
       - "--timeout"
       - "300" # 請求超時時間（秒）
       - "--set-env-vars"
-      - "ASPNETCORE_ENVIRONMENT=Production,ASPNETCORE_URLS=http://+:8080,GEMINI_MODEL_ID=gemini-2.5-flash-lite-preview-06-17,GEMINI_EMBEDDING_MODEL_ID=gemini-embedding-001,DATABASE_CONNECTION_STRING=Host=postgres;Port=5432;Database=translatebot;Username=postgres;Password=1"
+      - "ASPNETCORE_ENVIRONMENT=Production,ASPNETCORE_URLS=http://+:8080,GEMINI_MODEL_ID=gemini-2.5-flash-lite-preview-06-17,GEMINI_EMBEDDING_MODEL_ID=gemini-embedding-001"
       - "--set-secrets"
       - "GEMINI_API_KEY=GEMINI_API_KEY:latest,DATABASE_CONNECTION_STRING=DATABASE_CONNECTION_STRING:latest"
     id: "deploy-cloudrun"
