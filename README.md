@@ -71,7 +71,7 @@ Content-Type: application/json
 
 ## 快速開始
 
-1. 克隆專案
+1. Clone 專案
 
 ```bash
 git clone https://github.com/DellLin/TranslateBot.git
@@ -80,18 +80,48 @@ cd TranslateBot
 
 2. 設置環境變數
 
+創建 `.env` 檔案並設置必要的配置：
+
 ```bash
-# 在 .env 檔案中設置必要的 API 金鑰
-GOOGLE_API_KEY=your_google_api_key_here
+# Google AI 設定
+GEMINI_MODEL_ID=gemini-2.5-flash
+GEMINI_API_KEY=your-google-ai-api-key-here
+GEMINI_EMBEDDING_MODEL_ID=gemini-embedding-001
+
+# 資料庫連接字串
+DATABASE_CONNECTION_STRING=Host=localhost;Port=5432;Database=translatebot;Username=postgres;Password=your-password-here
 ```
 
-3. 運行專案
+3. 初始化資料庫
+
+確保 PostgreSQL 服務正在運行，然後使用專案提供的 `Database/init.sql` 腳本進行完整的資料庫初始化：
+
+```bash
+# 使用 PostgreSQL 連接並執行初始化腳本
+```
+
+這個腳本會自動執行以下操作：
+
+- 創建 `translatebot` 資料庫
+- 啟用 `pgvector` 擴展（用於向量相似性搜索）
+- 創建 `address_references` 資料表（地址參考資料）
+- 創建 `translation_records` 資料表（翻譯記錄）
+- 建立必要的索引（提升查詢效能）
+
+**故障排除：**
+
+- 如果遇到權限問題，請確保 PostgreSQL 用戶有創建資料庫的權限
+- 如果 `pgvector` 擴展安裝失敗，請先安裝 pgvector：
+
+> **重要**: 使用 `init.sql` 腳本是推薦的初始化方式，它包含完整的資料庫結構和索引配置。
+
+4. 運行專案
 
 ```bash
 dotnet run
 ```
 
-4. 在瀏覽器中開啟 `https://localhost:7000`
+5. 在瀏覽器中開啟 `http://localhost:5000` 或 `https://localhost:5001`
 
 ## 資料來源
 
