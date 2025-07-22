@@ -1,0 +1,61 @@
+# .gcloudignore 檔案
+# 定義在上傳到 Google Cloud Build 時要忽略的檔案和目錄
+
+# Git 相關檔案
+.git/
+.gitignore
+
+# IDE 和編輯器檔案
+.vs/
+.vscode/
+*.user
+*.suo
+*.sln.docstates
+
+# 建置輸出目錄
+bin/
+obj/
+out/
+
+# NuGet 套件
+packages/
+*.nupkg
+
+# 測試結果
+TestResults/
+
+# 暫存檔案
+*.tmp
+*.temp
+*.log
+
+# 環境變數檔案（包含敏感資訊）
+.env
+.env.local
+.env.production
+.env.staging
+
+# Docker 相關
+.dockerignore
+
+# 其他不必要的檔案
+*.md
+LICENSE
+.editorconfig
+.gitattributes
+
+# Node.js 相關（如果有前端建置）
+node_modules/
+npm-debug.log*
+
+# 作業系統產生的檔案
+.DS_Store
+Thumbs.db
+
+# 資料檔案
+*.csv
+*.txt
+*.TXT
+街路名稱.csv
+縣市名稱.csv
+村里文字巷中英對照.TXT

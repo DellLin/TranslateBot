@@ -1,0 +1,61 @@
+# 忽略建置產出
+bin/
+obj/
+out/
+
+# 忽略 IDE 和編輯器檔案
+.vs/
+.vscode/
+*.user
+*.suo
+*.sln.docstates
+
+# 忽略套件檔案
+packages/
+*.nupkg
+
+# 忽略測試結果
+TestResults/
+[Tt]est[Rr]esult*/
+*.coverage
+*.coveragexml
+
+# 忽略日誌檔案
+*.log
+
+# 忽略暫存檔案
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# 忽略 macOS 檔案
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+
+# 忽略 Linux 檔案
+*~
+.directory
+
+# 忽略 Git 檔案
+.git/
+.gitignore
+.gitattributes
+
+# 忽略 README 和文件檔案
+README.md
+*.md
+
+# 忽略環境變數檔案（重要：避免洩漏機密資訊）
+.env
+.env.local
+.env.development
+.env.production
+
+# 忽略 Docker 相關檔案
+Dockerfile*
+docker-compose*.yml
+.dockerignore
