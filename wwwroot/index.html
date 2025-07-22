@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>地址翻譯測試</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 40px;
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+        
+        .input-group {
+            margin-bottom: 30px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #555;
+            font-size: 1.1rem;
+        }
+        
+        textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 16px;
+            font-family: inherit;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            resize: vertical;
+            min-height: 80px;
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: 600;
+            width: 100%;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+        
+        button:active:not(:disabled) {
+            transform: translateY(0);
+        }
+        
+        button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .result {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 10px;
+            display: none;
+            animation: fadeIn 0.3s ease;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .result.success {
+            background-color: #d4edda;
+            border: 2px solid #c3e6cb;
+            color: #155724;
+        }
+        
+        .result.error {
+            background-color: #f8d7da;
+            border: 2px solid #f5c6cb;
+            color: #721c24;
+        }
+        
+        .address-display {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-left: 4px solid #667eea;
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #ffffff33;
+            border-radius: 50%;
+            border-top-color: #ffffff;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 8px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .feature-list {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        
+        .feature-list ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+        
+        .feature-list li {
+            margin-bottom: 8px;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌐 地址翻譯工具</h1>
+        <p class="subtitle">
+            智慧地址翻譯服務，整合完整的台灣地名資料庫<br>
+            支援縣市、街路、村里等各級地址的精準翻譯
+        </p>
+        
+        <div class="feature-list">
+            <h3>✨ 功能特色</h3>
+            <ul>
+                <li>🎯 整合 <strong>中華郵政全球資訊網-縣市鄉鎮中英對照</strong> 資料，確保縣市翻譯準確性</li>
+                <li>🛣️ 涵蓋 <strong>中華郵政全球資訊網-街路名稱中英對照</strong> 完整路名對照</li>
+                <li>🏘️ 包含 <strong>中華郵政全球資訊網-村里文字巷中英對照</strong> 詳細地址元件</li>
+                <li>🤖 運用 AI 語意理解，提供智慧化翻譯建議</li>
+            </ul>
+        </div>
+        
+        <div class="input-group">
+            <label for="address">請輸入要翻譯的地址：</label>
+            <textarea 
+                id="address" 
+                rows="4" 
+                placeholder="例如：No. 1, Shifu Rd., Xinyi Dist., Taipei City 110204&#10;No. 7, Sec. 2, Xianmin Blvd., Banqiao Dist., New Taipei City 220227&#10;No. 25, Chenggong 2nd Rd., Qianzhen Dist., Kaohsiung City 806614"
+            ></textarea>
+        </div>
+        
+        <button onclick="translateAddress()">
+            <span class="button-text">開始翻譯</span>
+        </button>
+        
+        <div id="result" class="result"></div>
+        
+        <div class="footer">
+            <p>© 2025 智慧地址翻譯系統 | 基於 Microsoft Semantic Kernel 和 Google Gemini AI</p>
+            <p><a href="admin.html" style="color: #667eea; text-decoration: none;">🛠️ 管理後台</a></p>
+        </div>
+    </div>
+
+    <script>
+        async function translateAddress() {
+            const addressInput = document.getElementById('address');
+            const resultDiv = document.getElementById('result');
+            const button = document.querySelector('button');
+            const buttonText = button.querySelector('.button-text');
+            
+            const address = addressInput.value.trim();
+            
+            if (!address) {
+                showResult('❌ 請輸入要翻譯的地址', 'error');
+                return;
+            }
+            
+            // 顯示載入中
+            button.disabled = true;
+            buttonText.innerHTML = '<span class="loading-spinner"></span>翻譯中...';
+            resultDiv.style.display = 'none';
+            
+            try {
+                const response = await fetch('/api/translate/address', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        address: address
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showResult(`
+                        <h4>✅ 翻譯完成</h4>
+                        <div class="address-display">
+                            <strong>📍 原始地址：</strong><br>
+                            ${escapeHtml(data.originalAddress)}
+                        </div>
+                        <div class="address-display">
+                            <strong>🌍 英文翻譯：</strong><br>
+                            ${escapeHtml(data.translatedAddress)}
+                        </div>
+                    `, 'success');
+                } else {
+                    showResult(`❌ 翻譯失敗: ${data.error || '未知錯誤'}`, 'error');
+                }
+            } catch (error) {
+                showResult(`🔌 連接失敗: ${error.message}`, 'error');
+            } finally {
+                button.disabled = false;
+                buttonText.textContent = '開始翻譯';
+            }
+        }
+        
+        function showResult(message, type) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = message;
+            resultDiv.className = `result ${type}`;
+            resultDiv.style.display = 'block';
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // 按 Enter 鍵也能翻譯
+        document.getElementById('address').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                translateAddress();
+            }
+        });
+    </script>
+</body>
+</html>

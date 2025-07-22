@@ -1,0 +1,24 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TranslateBot", "TranslateBot.csproj", "{71915790-ED03-8B6B-3D05-3FD256FD12E4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{71915790-ED03-8B6B-3D05-3FD256FD12E4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{71915790-ED03-8B6B-3D05-3FD256FD12E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{71915790-ED03-8B6B-3D05-3FD256FD12E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{71915790-ED03-8B6B-3D05-3FD256FD12E4}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {81F78443-4F04-4068-9FF9-0924BE40E4AE}
+	EndGlobalSection
+EndGlobal
