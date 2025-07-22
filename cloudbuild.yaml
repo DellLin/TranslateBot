@@ -68,7 +68,8 @@ steps:
 timeout: "1200s" # 20 分鐘
 
 # 建置記錄設定
-logsBucket: "gs://$PROJECT_ID-cloud-build-logs"
+options:
+  logging: CLOUD_LOGGING_ONLY
 
 # 替換變數（可選）
 substitutions:
