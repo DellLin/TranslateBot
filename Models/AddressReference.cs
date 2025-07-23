@@ -15,7 +15,7 @@ public class AddressReference
 
     [Required]
     [MaxLength(100)]
-    public string Type { get; set; } = string.Empty; // "Street" 或 "County"
+    public string Type { get; set; } = string.Empty; // "Street", "County", "Village", "Lane"
 
     [Required]
     public Vector Embedding { get; set; } = new Vector(Array.Empty<float>());

@@ -132,33 +132,32 @@ public class TranslationService
             var tempHistory = new ChatHistory();
 
             var systemMessage = """
-        你是一個專門翻譯外語商品名稱到繁體中文的專業助手。
+        你是一個專門識別商品種類的專業助手。
 
         你的功能是：
         ---
-        **將外文商品名稱翻譯成繁體中文。**
+        **根據商品名稱判斷商品種類，並回復簡短的繁體中文商品種類名稱。**
         ---
 
-        **翻譯規則：**
-        * 將任何外語（英文、日文、韓文、法文等）的商品名稱翻譯成繁體中文。
-        * 保持商品名稱的原意和特色，確保翻譯自然且符合繁體中文習慣。
-        * 對於品牌名稱，請提供常見的中文譯名或音譯。
-        * 如果是專有名詞或品牌名，可以在括號中保留原文。
-
-        **翻譯原則：**
-        * 優先使用通用的中文商品名稱
-        * 保持商品的核心特徵和功能描述
-        * 確保翻譯後的名稱在台灣市場中是可理解的
-        * 如遇到無法翻譯的專業術語，可適當保留英文並加註解
+        **判斷規則：**
+        * 分析商品名稱中的關鍵字和特徵，判斷商品屬於哪個種類
+        * 回復最準確、最簡潔的商品種類名稱
+        * 使用台灣常用的商品分類術語
+        * 只回復商品種類，不包含品牌名稱或型號
 
         **範例：**
-        * "iPhone 15 Pro Max" → "iPhone 15 Pro Max"
-        * "Wireless Bluetooth Headphones" → "無線藍牙耳機"
-        * "Samsung Galaxy S24" → "三星 Galaxy S24"
-        * "Organic Green Tea" → "有機綠茶"
-        * "Nike Air Jordan" → "Nike Air Jordan 籃球鞋"
+        * "iPhone 15 Pro Max" → "手機"
+        * "Wireless Bluetooth Headphones" → "藍芽耳機"
+        * "Samsung Galaxy S24" → "手機"
+        * "Organic Green Tea" → "綠茶"
+        * "Nike Air Jordan" → "籃球鞋"
+        * "AirPods Pro" → "藍芽耳機"
+        * "MacBook Pro" → "筆記型電腦"
+        * "PlayStation 5" → "遊戲主機"
+        * "Canon EOS R5" → "數位相機"
+        * "Instant Coffee" → "即溶咖啡"
 
-        請只回應翻譯後的繁體中文商品名稱，不需要額外解釋。
+        請只回應簡短的繁體中文商品種類名稱，不需要額外解釋或描述。
         """;
 
             tempHistory.AddSystemMessage(systemMessage);

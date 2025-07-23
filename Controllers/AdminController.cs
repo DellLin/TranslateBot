@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using TranslateBot.Services;
+using TranslateBot.Models;
 using System.IO;
 
 namespace TranslateBot.Controllers;
@@ -187,6 +188,79 @@ public class AdminController : ControllerBase
         {
             _logger.LogError(ex, "測試村里文字巷資料搜索時發生錯誤");
             return StatusCode(500, new { message = "搜索失敗", error = ex.Message });
+        }
+    }
+
+    /// <summary>
+    /// 新增地址中英對照資料
+    /// </summary>
+    [HttpPost("add-address")]
+    public async Task<IActionResult> AddAddress([FromBody] AddAddressRequest request)
+    {
+        try
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            // 檢查資料是否已存在
+            var exists = await _ragService.IsAddressExistsAsync(request.ChineseContent, request.EnglishContent, request.Type);
+            if (exists)
+            {
+                return Conflict(new { message = "相同的地址資料已存在" });
+            }
+
+            // 新增資料
+            var id = await _ragService.AddAddressReferenceAsync(
+                request.ChineseContent,
+                request.EnglishContent,
+                request.Type,
+                request.Note);
+
+            return Ok(new
+            {
+                message = "地址資料新增成功",
+                id = id,
+                chineseContent = request.ChineseContent,
+                englishContent = request.EnglishContent,
+                type = request.Type,
+                note = request.Note
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "新增地址資料時發生錯誤");
+            return StatusCode(500, new { message = "新增地址資料失敗", error = ex.Message });
+        }
+    }
+
+    /// <summary>
+    /// 取得支援的地址類型
+    /// </summary>
+    [HttpGet("address-types")]
+    public IActionResult GetAddressTypes()
+    {
+        try
+        {
+            var addressTypes = new[]
+            {
+                new { value = "County", label = "縣市", description = "縣、市、直轄市等行政區劃" },
+                new { value = "Street", label = "街路", description = "路、街、大道、巷弄等道路名稱" },
+                new { value = "Village", label = "村里", description = "村、里等基層行政區劃" },
+                new { value = "Lane", label = "巷弄", description = "巷、弄、衖等細部道路" }
+            };
+
+            return Ok(new
+            {
+                addressTypes = addressTypes,
+                message = "支援的地址類型"
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "取得地址類型時發生錯誤");
+            return StatusCode(500, new { message = "取得地址類型失敗", error = ex.Message });
         }
     }
 }

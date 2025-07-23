@@ -446,4 +446,69 @@ public class RagService
             throw;
         }
     }
+
+    /// <summary>
+    /// 新增單筆地址中英對照資料
+    /// </summary>
+    public async Task<int> AddAddressReferenceAsync(string chineseContent, string englishContent, string type, string? note = null)
+    {
+        try
+        {
+            // 組合中英文內容用於儲存和向量化
+            var combinedContent = $"{chineseContent} | {englishContent}";
+            if (!string.IsNullOrWhiteSpace(note))
+            {
+                combinedContent += $" ({note})";
+            }
+
+            // 生成嵌入向量
+            var embedding = await _embeddingService.GenerateEmbeddingAsync(combinedContent);
+
+            // 建立地址參考資料
+            var addressRef = new AddressReference
+            {
+                Content = combinedContent,
+                Type = type,
+                Embedding = new Vector(embedding.ToArray()),
+                CreatedAt = DateTime.UtcNow
+            };
+
+            _dbContext.AddressReferences.Add(addressRef);
+            await _dbContext.SaveChangesAsync();
+
+            _logger.LogInformation("成功新增地址資料: {Type} - {Chinese} | {English}",
+                type, chineseContent, englishContent);
+
+            return addressRef.Id;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "新增地址資料時發生錯誤: {Type} - {Chinese} | {English}",
+                type, chineseContent, englishContent);
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// 檢查地址資料是否已存在
+    /// </summary>
+    public async Task<bool> IsAddressExistsAsync(string chineseContent, string englishContent, string type)
+    {
+        try
+        {
+            var combinedContent = $"{chineseContent} | {englishContent}";
+
+            var exists = await _dbContext.AddressReferences
+                .AnyAsync(x => x.Content.Contains(chineseContent) &&
+                              x.Content.Contains(englishContent) &&
+                              x.Type == type);
+
+            return exists;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "檢查地址資料是否存在時發生錯誤");
+            throw;
+        }
+    }
 }
